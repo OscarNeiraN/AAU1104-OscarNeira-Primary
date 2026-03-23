@@ -1,0 +1,19 @@
+name: run hello world
+
+on:
+  workflow_call:
+
+jobs:
+  run-inline-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Exec holamundo
+        run: |
+          echo "hola mundo"
+          pwd 
+          ls -lah
+          echo "fin del script"
+          echo "fin del pipeline"
