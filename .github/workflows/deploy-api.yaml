@@ -1,5 +1,8 @@
 name: Deploy API to Docker Hub
 on:
+  #push:
+   # tags:
+    #  - 'v*,*'
   workflow_call:
     inputs:
       image-name:
