@@ -45,4 +45,5 @@ jobs:
           docker build \
             -t "${{IMAGEN_COMPLETA}}:${{ inputs.image-tag }}" \
             -t "${{IMAGEN_COMPLETA}}:latest" \
+            .
           docker push --all-tags "${IMAGEN_COMPLETA}"
