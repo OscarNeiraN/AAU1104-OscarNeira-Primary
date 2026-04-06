@@ -41,7 +41,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: build and push
         run: |
-          IMAGEN_COMPLETA="${{ secrets.DOCKER_USERNAME }}"/${{ inputs.image-name }}"
+          IMAGEN_COMPLETA="${{ secrets.DOCKER_USERNAME }}/${{ inputs.image-name }}"
           docker build \
             -t "${{IMAGEN_COMPLETA}}:${{ inputs.image-tag }}" \
             -t "${{IMAGEN_COMPLETA}}:latest" \
