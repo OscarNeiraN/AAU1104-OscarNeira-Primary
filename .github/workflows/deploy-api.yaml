@@ -1,8 +1,5 @@
 name: Deploy API to Docker Hub
 on:
-  #push:
-   # tags:
-    #  - 'v*,*'
   workflow_call:
     inputs:
       image-name:
@@ -10,8 +7,8 @@ on:
         required: true
         type: string
       image-tag:
-        description: "Tag de la imagen"
-        required: false
+        description: Nombre de version ( tag git v1.0.0)
+        required: true
         type: string
     secrets:
       DOCKER_USERNAME:
@@ -19,6 +16,16 @@ on:
       DOCKER_PASSWORD:
         required: true
   workflow_dispatch:
+    inputs:
+      image-name:
+        description: Nombre de la imagen 
+        required: true
+        type: string
+      image-tag:
+        description: Etiqueta de esta version(v1.0.0)
+        required: true
+        type: string
+
 
 jobs:
   build_and_push:
@@ -34,5 +41,8 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: build and push
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ inputs.image-name }}:${{ inputs.image-tag }} .
-          docker push ${{ secrets.DOCKER_USERNAME }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
+          IMAGEN_COMPLETA="${{ secrets.DOCKER_USERNAME }}"/${{ inputs.image-name }}"
+          docker build \
+            -t "${{IMAGEN_COMPLETA}}:${{ inputs.image-tag }}" \
+            -t "${{IMAGEN_COMPLETA}}:latest" \
+          docker push --all-tags "${IMAGEN_COMPLETA}"
