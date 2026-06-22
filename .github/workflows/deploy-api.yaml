@@ -117,20 +117,19 @@ jobs:
           ssh -o StrictHostKeyChecking=accept-new "ubuntu@${{ inputs.k3s-server-public-ip }}" \
             'sudo k3s kubectl apply -f /tmp/k8s-deploy/'
 
-      - name: Validar Rollout y Rollback
+      - name: 2 · Verificar estado del Rollout (Monitoreo)
+        id: deploy_status
         run: |
-          ssh -o StrictHostKeyChecking=accept-new \
-            "ubuntu@${{ inputs.k3s-server-public-ip }}" \
-            '
-            if sudo k3s kubectl rollout status deployment/demo-api --timeout=3m
-            then
-              echo "Despliegue ejecutado con exitoso"
-            else
-              echo "Despliegue fallido, realizando rollback"
-              sudo k3s kubectl rollout undo deployment/demo-api
-              exit 1
-            fi
-            '
+          ssh -o StrictHostKeyChecking=accept-new "ubuntu@${{ inputs.k3s-server-public-ip }}" \
+            'sudo k3s kubectl rollout status deployment/demo-api --timeout=60s'
 
-      - name: Verificar pods
+      - name: 3 · Rollback automático (Ejecución en caso de fallo)
+        if: failure() && steps.deploy_status.outcome == 'failure'
+        run: |
+          echo "::warning:: El despliegue falló. Iniciando Rollback automático al estado anterior estable..."
+          ssh -o StrictHostKeyChecking=accept-new "ubuntu@${{ inputs.k3s-server-public-ip }}" \
+            'sudo k3s kubectl rollout undo deployment/demo-api && sudo k3s kubectl rollout status deployment/demo-api --timeout=60s'
+
+      - name: 4 · Verificar pods finales
+        if: always()
         run: ssh -o StrictHostKeyChecking=accept-new "ubuntu@${{ inputs.k3s-server-public-ip }}" 'sudo k3s kubectl get pods -o wide'
